@@ -88,7 +88,7 @@ class DartsWrapper(BenchmarkDef):
     def get_search_space(self):
         return self.search_space
     def get_allowed_datasets(self):
-        return ['ptb']
+        return ['cifar10']
     def model_params(self):
         params = {}
         params['genotype'] = DartsSearch(self.seed)
