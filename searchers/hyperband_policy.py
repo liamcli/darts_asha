@@ -1,7 +1,7 @@
 import numpy
 from numpy import log, argmin
-import searchers.parallel.Trial as Trial
-from searchers.parallel.hp_utils import RandomSamplingPolicy, Conductor, Model_Job, _get_metadata, _set_metadata
+import Trial as Trial
+from hp_utils import RandomSamplingPolicy, Conductor, Model_Job, _get_metadata, _set_metadata
 
 class Bracket(object):
   def __init__(self, min_records, trials, num_halving_rounds=float('inf'), eta=0, bracket_id=None, goal_maximize=False,pending_trials=None, fix_quantiles=False):

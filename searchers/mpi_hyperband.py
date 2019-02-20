@@ -12,8 +12,8 @@ import sys
 import time
 
 from mpi4py import MPI
-from searchers.parallel.hyperband_policy import *
-from searchers.parallel.hp_utils import *
+from hyperband_policy import *
+from hp_utils import *
 import logging
 
 def main(argv):
