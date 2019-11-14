@@ -128,6 +128,7 @@ class DartsWrapper(BenchmarkDef):
 
 def main():
     # Use for testing
+    OUTPUTROOT='/home/liamli4465/results/asha_ptb'
     output_dir=os.path.join(OUTPUTROOT,'test')
 
     log_format = '%(asctime)s %(message)s'

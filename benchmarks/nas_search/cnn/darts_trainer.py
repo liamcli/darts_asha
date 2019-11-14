@@ -26,7 +26,7 @@ class AttrDict(dict):
 class DartsTrainer:
     def __init__(self, arm):
         args = {}
-        args['data'] = '/home/liamli4465/darts/data/'
+        args['data'] = '/home/liamli4465/data/'
         args['batch_size'] = 96
         args['learning_rate'] = 0.025
         args['momentum'] = 0.9
@@ -145,7 +145,7 @@ class DartsTrainer:
               logging.info('Saving new best model!')
 
           logging.info('valid_acc %f', valid_acc)
-        return 0, best_val,best_val
+        return 0, best_val.item() ,best_val.item()
 
     def train_epoch(self):
       args = self.args
@@ -186,21 +186,22 @@ class DartsTrainer:
       top5 = utils.AvgrageMeter()
       self.model.eval()
 
-      for step, (input, target) in enumerate(self.valid_queue):
-        input = Variable(input, volatile=True).cuda()
-        target = Variable(target, volatile=True).cuda(async=True)
+      with torch.no_grad():
+          for step, (input, target) in enumerate(self.valid_queue):
+            input = Variable(input).cuda()
+            target = Variable(target).cuda(async=True)
 
-        logits, _ = self.model(input)
-        loss = self.criterion(logits, target)
+            logits, _ = self.model(input)
+            loss = self.criterion(logits, target)
 
-        prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
-        n = input.size(0)
-        objs.update(loss.data[0], n)
-        top1.update(prec1.data[0], n)
-        top5.update(prec5.data[0], n)
+            prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
+            n = input.size(0)
+            objs.update(loss.data[0], n)
+            top1.update(prec1.data[0], n)
+            top5.update(prec5.data[0], n)
 
-        if step % self.args.report_freq == 0:
-          logging.info('valid %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
+            if step % self.args.report_freq == 0:
+              logging.info('valid %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
 
       return top1.avg, objs.avg
 

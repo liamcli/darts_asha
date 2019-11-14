@@ -27,7 +27,7 @@ class DartsTrainer():
         # Default params for eval network
         args = {'emsize':850, 'nhid':850, 'nhidlast':850, 'dropoute':0.1, 'wdecay':8e-7}
 
-        args['data'] = '/home/liamli4465/darts/data/penn'
+        args['data'] = '/home/liamli4465/data/penn'
         args['lr'] = 20
         args['clip'] = 0.25
         args['batch_size'] = 64
@@ -56,8 +56,9 @@ class DartsTrainer():
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
         torch.cuda.set_device(args.gpu)
-        cudnn.benchmark = True
+        cudnn.benchmark = False
         cudnn.enabled=True
+        cudnn.deterministic = True
         torch.cuda.manual_seed_all(args.seed)
 
         corpus = data.Corpus(args.data)
@@ -169,7 +170,7 @@ class DartsTrainer():
 
         except Exception as e:
             logging.info('-' * 89)
-            logging.info(e)
+            print(sys.exc_info()[0])
             logging.info('Exiting from training early')
             return 0, 10000, 10000
 
@@ -265,15 +266,16 @@ class DartsTrainer():
         self.model.eval()
         total_loss = 0
         hidden = self.model.init_hidden(batch_size)
-        for i in range(0, data_source.size(0) - 1, self.args.bptt):
-            data, targets = get_batch(data_source, i, self.args, evaluation=True)
-            targets = targets.view(-1)
+        with torch.no_grad():
+            for i in range(0, data_source.size(0) - 1, self.args.bptt):
+                data, targets = get_batch(data_source, i, self.args, evaluation=True)
+                targets = targets.view(-1)
 
-            log_prob, hidden = self.model(data, hidden)
-            loss = nn.functional.nll_loss(log_prob.view(-1, log_prob.size(2)), targets).data
+                log_prob, hidden = self.model(data, hidden)
+                loss = nn.functional.nll_loss(log_prob.view(-1, log_prob.size(2)), targets).data
 
-            total_loss += loss * len(data)
+                total_loss += loss * len(data)
 
-            hidden = repackage_hidden(hidden)
+                hidden = repackage_hidden(hidden)
         return total_loss[0] / len(data_source)
 

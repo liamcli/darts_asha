@@ -12,12 +12,8 @@ from genotypes import Genotype
 import time
 import math
 import numpy as np
-import torch
 import copy
 import logging
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.backends.cudnn as cudnn
 import os
 import gc
 import logging
@@ -150,6 +146,7 @@ class DartsWrapper(BenchmarkDef):
 
 def main():
     # Use for testing
+    OUTPUTROOT='/home/liamli4465/results'
     output_dir=os.path.join(OUTPUTROOT,'asha_cnn/test_default')
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
@@ -161,12 +158,12 @@ def main():
     fh.setFormatter(logging.Formatter(log_format))
     logging.getLogger().addHandler(fh)
 
-    model= DartsWrapper('ptb',261)
+    model= DartsWrapper('cifar10',261)
     params = {'genotype':model.search_space['genotype'].get_param_range(1)[0]}
     arm = model.create_arm(output_dir, params=params, default=False)
     # If resuming manually need to change these.
-    arm['seed'] = 2
-    arm['dir'] = os.path.join(OUTPUTROOT,'asha_cnn/test_default/arm2')
+    #arm['seed'] = 2
+    #arm['dir'] = os.path.join(OUTPUTROOT,'asha_cnn/test_default/arm2')
     #arm['epochs'] = 512
     model.set_R(300)
     overhead, val_acc, test_acc = model.run_solver(arm,1)
